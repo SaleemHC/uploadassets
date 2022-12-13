@@ -23,6 +23,26 @@ include "connection.php";
         table,tr,td,th{
             border: 1px solid #000;
         }
+
+        .upd_ast{
+            position: absolute;
+            top:0;
+            display: none;
+            border: 1px solid #000;
+            padding: 8px;
+            background: #fff;
+        }
+
+        .upd_ast.active{
+            display: block;
+        }
+
+        ul{
+            text-align: left;
+            list-style: none;
+            padding: 0;
+        }
+
         /*     margin-top: -60px;
     margin-left: -30px; */
     </style>
@@ -43,7 +63,7 @@ include "connection.php";
                 </thead>
                 <tbody>
                 <?php
-                    $sql="SELECT * FROM `templates` WHERE id='1'";
+                    $sql="SELECT * FROM `templates` WHERE id='1 '";
 
                     $data=mysqli_query($conn,$sql);
                     if(mysqli_num_rows($data)>0){
@@ -56,10 +76,14 @@ include "connection.php";
                                         <?php echo $row['master_code']; ?>
                                     </div>
                                 </td>
-                                <td style="text-align:center;">
+                                <td style="position:relative;text-align:center;">
                                     <button id="upload_asset" onclick="uploadAssets()">upload</button>
+                                    <div class="upd_ast">
+                                        <h5>This are the required Assets to Upload</h5>
+                                        <ul class="ulist"></ul>
+                                    </div>
                                 </td>
-                                <td style="text-align:center;">alignment</td>
+                                <td id="align" style="text-align:center;"></td>
                             </tr>
                             <?php
                         }}               
@@ -72,6 +96,30 @@ include "connection.php";
 </body>
 
 <script>
+    var creativeAssets = document.querySelector("#dynadata").children;
+    var searchalign = document.querySelector(".search");
+    var tdalign = document.querySelector("#align");
+
+    console.log(searchalign.style.length)
+
+    for (let i = 0; i < searchalign.style.length; i++) {
+        if(searchalign.style[i] == "width" || searchalign.style[i] == "left" || searchalign.style[i] == "top"){
+            console.log(searchalign.style[i])
+            tdalign.innerHTML += searchalign.style[i] + "</br>";
+        }
+    }
+
+    var ulist = document.querySelector(".ulist");
+
+    for (let i = 0; i < creativeAssets.length; i++) {
+        if(creativeAssets[i].id == "bg"){
+            var list = `<li>Background Image</li>`
+        }else{
+            var list = `<li>${creativeAssets[i].id}</li>`
+        }
+        ulist.innerHTML += list;
+    }
+    console.log(ulist)
     function uploadAssets(){
         document.querySelector(".upd_ast").classList.add("active");
     }
