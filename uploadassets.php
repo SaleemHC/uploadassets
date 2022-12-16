@@ -115,7 +115,7 @@ $autofcat="";
             <form method="POST">
                 <input id="htmlcode" type="hidden" name="htmlcode" />
                 <button onclick="proceed()" name="submit">proceed</button>
-                <button name="update">Update</button>
+                <button onclick="update()" name="update">Update</button>
             </form>
         </div>
     </div>
@@ -123,16 +123,20 @@ $autofcat="";
     <?php
 
         if(isset($_POST['submit'])){
-            $a = $_POST['htmlcode'];
-            $sql1 = "INSERT INTO creativecode (name,campaign,type,cdata,client,dimension,filter,status,content,updated_at,created_at) VALUES ('search','searchtile','static','popular','plumsearch','$dim','$autofcat','active','$a','0:0:0','$time')";
+            $htmlcode = $_POST['htmlcode'];
+            $sql1 = "INSERT INTO creativecode (name,campaign,type,cdata,client,dimension,filter,status,content,updated_at,created_at) VALUES ('search','searchtile','static','popular','plumsearch','$dim','$autofcat','active','$htmlcode','0:0:0','$time')";
             $data1=mysqli_query($conn,$sql1);
         }
 
-        // if(isset($_POST['update'])){
-        //     $a = $_POST['htmlcode'];
-        //     $sql1 = "INSERT INTO creativecode (name,campaign,type,cdata,client,dimension,filter,status,content,updated_at,created_at) VALUES ('search','searchtile','static','popular','plumsearch','$dim','jfgdfj','active','$a','0:0:0','$time')";
-        //     $data1=mysqli_query($conn,$sql1);
-        // }
+        if(isset($_POST['update'])){
+            $htmlcode = $_POST['htmlcode'];
+            $sqlid = "SELECT id FROM creativecode ORDER BY id DESC LIMIT 1";
+            $resultid = mysqli_query($conn,$sqlid);
+            $row=mysqli_fetch_assoc($resultid);
+            $id = $row['id'];
+            $sql1 = "UPDATE creativecode SET content='$htmlcode',updated_at='$time' WHERE id='$id'";
+            $data1=mysqli_query($conn,$sql1);
+        }
 
 
     ?>
@@ -215,6 +219,11 @@ $autofcat="";
     }
 
     function proceed(){
+        document.querySelector("#htmlcode").value = aspectRatio.innerHTML.trim();
+        // console.log(document.querySelector("#htmlcode").value)
+    }
+
+    function update(){
         document.querySelector("#htmlcode").value = aspectRatio.innerHTML.trim();
         console.log(document.querySelector("#htmlcode").value)
     }
