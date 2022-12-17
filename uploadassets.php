@@ -63,6 +63,13 @@ $autofcat="";
     <div class="upload_cnt">
         <h2 style="text-align:center;">Upload Assets</h2>
         <h3 style="text-align:center;">Selected Template Name</h3>
+        <form method="POST">
+                <input id="htmlcode" type="hidden" name="htmlcode" />
+                <input id="landing_url" type="hidden" name="landing_url" />
+                <input id="imperession_trk" type="hidden" name="imperession_trk" />
+                <button onclick="proceed()" name="submit">proceed</button>
+                <button onclick="update()" name="update">Update</button>
+            </form>
         <div class="slt_tmp">
             <table>
                 <thead>
@@ -70,7 +77,6 @@ $autofcat="";
                         <th>Ad Size</th>
                         <th>Previews</th>
                         <th>Upload Assets</th>
-                        <th>Creative alignment</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,6 +87,8 @@ $autofcat="";
                     if(mysqli_num_rows($data)>0){
                         while($row=mysqli_fetch_assoc($data)){
                             $dim = $row['dim'];
+                            $tmp_name = $row['template_name'];
+                            $script = $row['script_tags'];
                             ?>
                             <tr>
                                 <td style="text-align:center;"><?php echo $row['dim']; ?></td>
@@ -96,15 +104,6 @@ $autofcat="";
                                         <ul class="ulist"></ul>
                                     </div>
                                 </td>
-                                <td id="searchalign" style="text-align:center;">
-                                <label>Placeholder: </label><input id="place_id" type="text" /> <br>
-                                <label>Top: </label><input id="top_id" type="number" /><br>
-                                <label>Left: </label><input id="left_id" type="number" /> <br>
-                                <label>Width: </label><input id="width_id" type="number" /> <br>
-                                <label>Height: </label><input id="height_id" type="number" /> <br>
-                                <label>Background Colour: </label><input id="bgcolor_id" type="color" /> <br>
-                                <label>Text Colour: </label><input id="color_id" type="color" /> <br>
-                                </td>
                             </tr>
                             <?php
                         }}  
@@ -112,11 +111,35 @@ $autofcat="";
                 ?>
                 </tbody>
             </table>
-            <form method="POST">
-                <input id="htmlcode" type="hidden" name="htmlcode" />
-                <button onclick="proceed()" name="submit">proceed</button>
-                <button onclick="update()" name="update">Update</button>
-            </form>
+            
+        </div>
+        <div class="slt_tmp">
+        <table>
+                <thead>
+                    <tr>
+                    <th>Creative alignment</th>
+                        <th>Landing URL / Imperession Tracker</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        <tr>
+                        <td id="searchalign" style="text-align:center;">
+                                    <label>Placeholder: </label><input id="placeholder-input" type="text" /> <br>
+                                    <label>Placeholder Color : </label><input id="placeholder-color" type="color" /> <br>
+                                    <label>Placeholder Font size : </label><input id="placeholder-size" type="text" /> <br>
+                                    <label>Top: </label><input id="search-top" type="number" /><br>
+                                    <label>Left: </label><input id="search-left" type="number" /> <br>
+                                    <label>Width: </label><input id="placeholder-width" type="number" /> <br>
+                                    <label>Height: </label><input id="placeholder-height" type="number" /> <br>
+                                    <label>Background Colour: </label><input id="search-bg-color" type="color" /> <br>
+                                </td>
+                                <td id="lp_imp" style="text-align:center;">
+                                    <label>Landing URL: </label><input id="lp_utl" type="text" /> <br>
+                                    <label>ImperessionTracker : </label><input id="imp_trk" type="text" /> <br>
+                                </td>
+                        </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -124,7 +147,10 @@ $autofcat="";
 
         if(isset($_POST['submit'])){
             $htmlcode = $_POST['htmlcode'];
-            $sql1 = "INSERT INTO creativecode (name,campaign,type,cdata,client,dimension,filter,status,content,updated_at,created_at) VALUES ('search','searchtile','static','popular','plumsearch','$dim','$autofcat','active','$htmlcode','0:0:0','$time')";
+            $landing_url = $_POST['landing_url'];
+            $imperession_trk = $_POST['imperession_trk'];
+            // echo $htmlcode;
+            $sql1 = "INSERT INTO creativecode (name,campaign,type,cdata,client,dimension,filter,status,content,clicks,impressions) VALUES ('$tmp_name','searchtile','static','popular','plumsearch','$dim','$autofcat','active','$htmlcode','$landing_url','$imperession_trk')";
             $data1=mysqli_query($conn,$sql1);
         }
 
@@ -134,7 +160,7 @@ $autofcat="";
             $resultid = mysqli_query($conn,$sqlid);
             $row=mysqli_fetch_assoc($resultid);
             $id = $row['id'];
-            $sql1 = "UPDATE creativecode SET content='$htmlcode',updated_at='$time' WHERE id='$id'";
+            $sql1 = "UPDATE creativecode SET updated_at='$time' WHERE id='$id'";
             $data1=mysqli_query($conn,$sql1);
         }
 
@@ -162,57 +188,6 @@ $autofcat="";
         var scale_vl = 180/Number(height_bx);
         aspectRatio.style.transform=`scale(${scale_vl})`;
     }
-
-    var creativeAssets = document.querySelector("#dynadata").children;
-    var searchalign = document.querySelector(".search");
-    var searchStyle = document.querySelector("#searchstyle");
-    var searchalign = document.querySelector("#searchalign");
-    var searchbox = document.querySelector("#searchbox");
-
-    var ulist = document.querySelector(".ulist");
-    let inputBox = searchalign.querySelectorAll("input");
-    var placeholder = document.querySelector("#place_id");
-    var tops = document.querySelector("#top_id");
-    var lefts = document.querySelector("#left_id");
-    var widths = document.querySelector("#width_id");
-    var heights = document.querySelector("#height_id");
-    var bgcolors = document.querySelector("#bgcolor_id");
-    var colors = document.querySelector("#color_id");
-
-
-    placeholder.addEventListener('keyup',() => {
-        searchStyle.placeholder = placeholder.value; 
-    })
-
-    tops.addEventListener('keyup',() => {
-        searchbox.style.top = tops.value + "px";
-    })
-
-    lefts.addEventListener('keyup',() => {
-        searchbox.style.left = lefts.value + "px";
-    })
-
-    widths.addEventListener('keyup',() => {
-        searchStyle.style.width = widths.value + "px";
-    })
-
-    heights.addEventListener('keyup',() => {
-        searchStyle.style.height = heights.value + "px";
-    })
-
-    bgcolors.addEventListener('change',() => {
-        searchStyle.style.backgroundColor = bgcolors.value;
-        searchbox.style.backgroundColor = bgcolors.value;
-    })
-
-    colors.addEventListener('change',() => {
-        searchStyle.style.color=colors.value
-    })
-
-    for (let i = 0; i < creativeAssets.length; i++) {
-        var list = `<li>${creativeAssets[i].id}</li>`
-        ulist.innerHTML += list;
-    }
     
     function uploadAssets(){
         document.querySelector(".upd_ast").classList.toggle("active");
@@ -220,7 +195,9 @@ $autofcat="";
 
     function proceed(){
         document.querySelector("#htmlcode").value = aspectRatio.innerHTML.trim();
-        // console.log(document.querySelector("#htmlcode").value)
+        document.querySelector("#landing_url").value = document.getElementById("lp_utl").value;
+        document.querySelector("#imperession_trk").value = document.getElementById("imp_trk").value;
+        console.log(document.querySelector("#htmlcode").value)
     }
 
     function update(){
@@ -229,4 +206,5 @@ $autofcat="";
     }
 
 </script>
+<?php echo $script; ?>
 </html>
